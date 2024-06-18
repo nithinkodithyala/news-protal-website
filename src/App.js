@@ -1,7 +1,10 @@
+
+
 import React, { useEffect, useState } from 'react';
-// import { getNews } from './services/newsService';
 import ReactPaginate from 'react-paginate';
 import './App.css';
+
+const API_KEY = 'da407b82d945b57563edba0632f75897'; // Replace with your actual GNews API key
 
 const App = () => {
   const [articles, setArticles] = useState([]);
@@ -13,25 +16,19 @@ const App = () => {
 
   useEffect(() => {
     const fetchNews = async () => {
-      const API_KEY = '0341aff94a6641a68d0907537ceb9221'; 
-      const BASE_URL = 'https://newsapi.org/v2';
-      
+      const url = `https://gnews.io/api/v4/top-headlines?token=${API_KEY}&lang=en&country=us&topic=${category}&page=${page}&pageSize=20`;
+
       try {
-        const response = await fetch(`${BASE_URL}/top-headlines?country=us&category=${category}&page=${page}&apiKey=${API_KEY}`);
-        
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        
+        const response = await fetch(url);
         const data = await response.json();
+
         setArticles(data.articles);
-        setTotalPages(Math.ceil(data.totalResults / 20)); // Assuming 20 articles per page
+        setTotalPages(Math.ceil(data.totalArticles / 20)); // Assuming 20 articles per page
       } catch (error) {
         console.error('Error fetching news:', error);
-        // Handle error state or notify the user
       }
     };
-    
+
     fetchNews();
   }, [category, page]);
 
@@ -44,13 +41,8 @@ const App = () => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
 
-  const handleCategoryChange = (event) => {
-    setCategory(event.target.value);
-    setPage(1); // Reset to page 1 on category change
-  };
-
-  const handlePageClick = (data) => {
-    setPage(data.selected + 1);
+  const isFavorite = (article) => {
+    return favorites.some(fav => fav.url === article.url);
   };
 
   const handleAddToFavorites = (article) => {
@@ -61,8 +53,13 @@ const App = () => {
     setFavorites(favorites.filter(fav => fav.url !== article.url));
   };
 
-  const isFavorite = (article) => {
-    return favorites.some(fav => fav.url === article.url);
+  const handleCategoryChange = (event) => {
+    setCategory(event.target.value);
+    setPage(1); // Reset to page 1 on category change
+  };
+
+  const handlePageClick = (data) => {
+    setPage(data.selected + 1);
   };
 
   const toggleFavorites = () => {
@@ -104,7 +101,7 @@ const App = () => {
               {favorites.map((article, index) => (
                 <div key={index} className="bg-white p-5 rounded shadow-md">
                   <img
-                    src={article.urlToImage}
+                    src={article.image}
                     alt={article.title}
                     className="w-full h-48 object-cover mb-4 rounded"
                   />
@@ -134,11 +131,11 @@ const App = () => {
       ) : (
         <div className="p-5">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {articles.map((article, index) => (
-              article.urlToImage && (
+            {articles.length > 0 ? (
+              articles.map((article, index) => (
                 <div key={index} className="bg-white p-5 rounded shadow-md">
                   <img
-                    src={article.urlToImage}
+                    src={article.image}
                     alt={article.title}
                     className="w-full h-48 object-cover mb-4 rounded"
                   />
@@ -173,8 +170,10 @@ const App = () => {
                     </button>
                   </div>
                 </div>
-              )
-            ))}
+              ))
+            ) : (
+              <p className="text-center text-gray-700">No articles found.</p>
+            )}
           </div>
 
           <div className="mt-10 flex justify-center">
@@ -198,9 +197,10 @@ const App = () => {
           </div>
         </div>
       )}
-       <footer className="bg-gray-800 text-white text-center p-4 mt-8">
+      
+      <footer className="bg-gray-800 text-white text-center p-4 mt-8">
         <p>
-          Created by Nithin Kodithyala |
+          Created by Your Name |
           <a
             href="mailto:kodithyalanithin153@gmail.com"
             className="ml-1 underline"
