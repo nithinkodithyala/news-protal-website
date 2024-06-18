@@ -200,7 +200,7 @@ const App = () => {
       
       <footer className="bg-gray-800 text-white text-center p-4 mt-8">
         <p>
-          Created by Your Name |
+          Created by Nithin Kodithyala|
           <a
             href="mailto:kodithyalanithin153@gmail.com"
             className="ml-1 underline"
