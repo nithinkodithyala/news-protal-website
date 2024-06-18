@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getNews } from './services/newsService';
+// import { getNews } from './services/newsService';
 import ReactPaginate from 'react-paginate';
 import './App.css';
 
@@ -13,11 +13,25 @@ const App = () => {
 
   useEffect(() => {
     const fetchNews = async () => {
-      const data = await getNews(category, page);
-      setArticles(data.articles);
-      setTotalPages(Math.ceil(data.totalResults / 20)); // Assuming 20 articles per page
+      const API_KEY = '0341aff94a6641a68d0907537ceb9221'; 
+      const BASE_URL = 'https://newsapi.org/v2';
+      
+      try {
+        const response = await fetch(`${BASE_URL}/top-headlines?country=us&category=${category}&page=${page}&apiKey=${API_KEY}`);
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+        setArticles(data.articles);
+        setTotalPages(Math.ceil(data.totalResults / 20)); // Assuming 20 articles per page
+      } catch (error) {
+        console.error('Error fetching news:', error);
+        // Handle error state or notify the user
+      }
     };
-
+    
     fetchNews();
   }, [category, page]);
 
